@@ -9,3 +9,6 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/schifferl/assignment3
 BugReports: https://github.com/schifferl/assignment3/issues
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

@@ -1,0 +1,167 @@
+---
+title: "assignment3"
+author: "Lucas Schiffer"
+date: "November 16, 2016"
+output: html_document
+vignette: >
+  %\VignetteIndexEntry{assignment2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+css: style.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.align = "center")
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(readxl)
+library(magrittr)
+library(dplyr)
+library(knitr)
+library(ggplot2)
+library(survival)
+library(survminer)
+```
+
+## Introduction
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam dignissim ipsum neque, in euismod nunc dignissim quis. Cras suscipit, leo eget auctor tincidunt, ipsum nulla rhoncus nunc, vitae ultrices lacus mi a libero. Morbi mollis nisi dolor, at fermentum nunc imperdiet nec. Vestibulum ultrices finibus magna, at condimentum dui vehicula vel. Curabitur mattis fermentum interdum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ut tellus mauris. Curabitur porta lacinia ante. Pellentesque vestibulum sapien ut diam fringilla, sit amet molestie lorem scelerisque. Phasellus a feugiat magna. Morbi accumsan risus non commodo tristique. Cras luctus varius sem nec pulvinar. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur vitae ipsum efficitur, lacinia orci vitae, mattis justo.^[Amogne, W. et al. Efficacy and Safety of Antiretroviral Therapy Initiated One Week after Tuberculosis Therapy in Patients with CD4 Counts < 200 Cells/μL: TB-HAART Study, a Randomized Clinical Trial. PLoS ONE 10, e0122587 (2015)]
+
+
+## Methods
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r}
+read_excel("../inst/extdata/journal.pone.0122587.s002.XLSX") ->
+  assignment3_data
+```
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r}
+colnames(assignment3_data) %<>%
+  toupper() %>%
+  gsub("+\ ", "_", .) %>%
+  gsub("-", "_", .) %>%
+  gsub("__", "_", .) %>%
+  gsub("%", "_PERCENT", .) %>%
+  gsub("_$", "", .) %>%
+  gsub("\\(MM\\)", "_MM", .)
+```
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r}
+assignment3_data %<>%
+  select(RANDOM, EXP_48, EXP_WK_48, BMI, ALBUMIN, CD4_0) %>%
+  mutate(RANDOM = gsub("1", " week one", RANDOM)) %>%
+  mutate(RANDOM = gsub("2", " week four", RANDOM)) %>%
+  mutate(RANDOM = gsub("3", " week eight", RANDOM)) %>%
+  mutate(RANDOM = as.factor(RANDOM)) %>%
+  mutate(RANDOM = relevel(RANDOM, " week eight")) %>%
+  mutate(EXP_48 = gsub("Yes", TRUE, EXP_48)) %>%
+  mutate(EXP_48 = gsub("No", FALSE, EXP_48)) %>%
+  mutate(EXP_48 = as.logical(EXP_48)) %>%
+  mutate(ALBUMIN = ifelse(ALBUMIN < 3, " < 3gms/dL", " ≥ 3gms/dL")) %>%
+  mutate(ALBUMIN = as.factor(ALBUMIN)) %>%
+  mutate(ALBUMIN = relevel(ALBUMIN, " ≥ 3gms/dL")) %>%
+  mutate(CD4_0 = ifelse(CD4_0 < 50, " < 50 cells/μL", " 51–199 cells/μL")) %>%
+  mutate(CD4_0 = as.factor(CD4_0)) %>%
+  mutate(CD4_0 = relevel(CD4_0, " 51–199 cells/μL"))
+```
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+$$S(t) = \Pr\{ T \ge t \} = 1 - F(t) =  \int_t^\infty f(x)\ dx$$
+
+<p class = "caption">Equation 1 - Survival as a Function of Time</p>
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r}
+assignment3_data %$%
+  Surv(EXP_WK_48, EXP_48) ->
+  assignment3_surv
+```
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+$$h(t) = \lim_{s\rightarrow0} \frac{\Pr\{t \le T < t + s | T \ge t \} }{s}$$
+<p class = "caption">Equation 2 - Proportional Hazard as a Function of Time</p>
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r}
+model_extract <- function(coxph_model) {
+  summary <- summary(coxph_model)
+  estimate <- summary$conf.int[, -2, drop = FALSE]
+  pvalue <- summary$coefficients[, 5, drop = FALSE]
+  cbind(estimate, pvalue)
+}
+```
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r}
+model_kable <- function(model_list) {
+  lapply(model_list, model_extract) %>%
+    Reduce(rbind, .) %>%
+    kable(digits = 3, col.names = c("Estimate", "95% CI Lower Limit", 
+                                    "95% CI Upper Limit", "P-Value"), 
+          align = "lllr", format.args = list(nsmall = 3, scientific = FALSE))
+}
+```
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+## Results
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r, echo=FALSE}
+assignment3_data %$%
+  survfit(assignment3_surv ~ RANDOM) %>%
+  ggsurvplot(linetype = "strata", xlab = "Weeks After TB Therapy", ylab = "Probability of Survival", legend = "bottom")
+```
+
+<p class = "caption">Figure 1 - Survival by Week of Randomization</p>
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r, echo=FALSE}
+CD4_0_MODEL <- coxph(assignment3_surv ~ CD4_0, data = assignment3_data)
+ALBUMIN_MODEL <- coxph(assignment3_surv ~ ALBUMIN, data = assignment3_data)
+RANDOM_MODEL <- coxph(assignment3_surv ~ RANDOM, data = assignment3_data)
+BMI_MODEL <- coxph(assignment3_surv ~ BMI, data = assignment3_data)
+list(CD4_0_MODEL, ALBUMIN_MODEL, RANDOM_MODEL, BMI_MODEL) %>%
+model_kable()
+```
+
+<p class = "caption">Table 1 - Univariate Analysis of Proportional Hazards</p>
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r, echo=FALSE}
+coxph(assignment3_surv ~ CD4_0 + ALBUMIN + RANDOM + BMI, data = assignment3_data) %>% 
+list() %>%
+model_kable()
+```
+
+<p class = "caption">Table 2 - Multivariate Analysis of Proportional Hazards</p>
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+Curabitur et rhoncus felis, id facilisis tellus. Fusce fermentum nisl eu sem convallis, at cursus est tristique. Maecenas non ante mi. Sed aliquam tincidunt pharetra. Nunc in ipsum dolor. Pellentesque scelerisque libero nec libero vehicula aliquet. Nullam sed neque vel turpis egestas auctor. Sed congue libero id nunc placerat, et molestie libero malesuada. Cras mollis dui a scelerisque accumsan.
+
+## Discussion
+
+Phasellus eu mollis odio. Etiam tincidunt eu est nec semper. Nulla bibendum enim purus, sit amet luctus lacus rhoncus non. Vivamus quis dignissim risus. Maecenas rhoncus imperdiet nulla sed congue. Duis id lacus felis. Aenean maximus accumsan urna. Etiam aliquam tortor justo, ut tempus orci sollicitudin ut. Fusce tristique enim ex, ac efficitur ipsum tincidunt vitae. Phasellus a imperdiet nisi, sit amet mattis dui. Nulla elementum pretium mi, at laoreet lectus semper nec. Proin vehicula a arcu in efficitur. Curabitur et fringilla ipsum.
+
+Proin in pharetra erat. Proin ullamcorper ligula sapien. Aenean dapibus justo ante, quis scelerisque est tincidunt ac. Nam eget felis nec metus tincidunt convallis. Donec lacinia tellus at dictum interdum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse potenti. Mauris nec leo feugiat, blandit metus eget, gravida turpis. Phasellus consectetur lorem ut justo pellentesque volutpat. Donec a risus eu neque consequat scelerisque. In maximus urna ante, sed pharetra felis tincidunt et.
+
+## References
