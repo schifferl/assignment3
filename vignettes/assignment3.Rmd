@@ -119,7 +119,7 @@ log_rank_kable <- function(survdiff_obj) {
 
 ## Results
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+It was possible to reproduce Figure 2 of the original publication and its corresponding risk set accurately and completely, as can be seen in Figure 1 below. Likewise, it was possible to replicate the chi-squared statistics for the log-rank test by week of randomization, as can be seen in Table 1 below. Among the risk strata, initiation of cART at week eight following TB therapy yeilded the highest cumulative probability of survival, followed by initiation at week four, and finally with week one giving the lowest cumulative probability of survival. However, as indicated by the log-rank chi-squared test, the differences were not found to be statisticaly sinificant (P = 0.235).
 
 ```{r, echo=FALSE}
 assignment3_data %$%
@@ -132,7 +132,14 @@ assignment3_data %$%
 
 <p class = "caption">Figure 1 - Survival by Week of Randomization</p>
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+```{r, echo=FALSE}
+survdiff(assignment3_surv ~ RANDOM, data = assignment3_data) %>%
+log_rank_kable()
+```
+
+<p class = "caption">Table 1 - Chi-Squared Statistics for Log-Rank Test by Week of Randomization</p>
+
+As for Table 2 of the orginial publication, in the absence of further methodlogical details concerning heptatoxicity outcomes it was not possible to reproduce the findings accurately. Although it was possible to reconstruct Cox proportional hazards models concerning survival outcomes that were verified against the computations of another statistician. Of note, the univariate models by week of randomization and body mass index (BMI) did accurately reproduce the findings of the orginial publication; however, all other figures deviated significantly in comparison. Both univariate and multivariate analysis are shown below in tables 2 and 3, respectively.
 
 ```{r, echo=FALSE}
 CD4_0_MODEL <- coxph(assignment3_surv ~ CD4_0, data = assignment3_data)
@@ -143,9 +150,9 @@ list(CD4_0_MODEL, ALBUMIN_MODEL, RANDOM_MODEL, BMI_MODEL) %>%
 model_kable()
 ```
 
-<p class = "caption">Table 1 - Univariate Analysis of Proportional Hazards</p>
+<p class = "caption">Table 2 - Univariate Analysis of Proportional Hazards</p>
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+As relates to univariate analysis, reproduced findings were as follows. Baseline CD4 count less than 50 cells / µL was found to have a hazard ratio of 1.97 (95% CI 1.20 – 3.22; P < 0.01) as compared to baseline CD4 count of 51-199 cells / µL. Serum albumin less than 3 g / dL was found to have a hazard ratio of 2.04 (95% CI 1.24 – 3.36; P < 0.01) as compared to serum albumin greater or equal to 3 g / dL. Concerning week of randomization, with week eight as the reference category, week four was found to have a hazard ratio of 1.18 (95% CI 0.62 – 2.25; P = 0.62) and week one was found to have a hazard ratio of 1.64 (95% CI 0.89 – 3.01; P = 0.11). Finally, BMI, computed as a continuous variable, was found to have a hazard ratio of 0.90 (95% CI 0.82 – 0.99; P = 0.03).
 
 ```{r, echo=FALSE}
 coxph(assignment3_surv ~ CD4_0 + ALBUMIN + RANDOM + BMI, data = assignment3_data) %>% 
@@ -153,25 +160,14 @@ list() %>%
 model_kable()
 ```
 
-<p class = "caption">Table 2 - Multivariate Analysis of Proportional Hazards</p>
+<p class = "caption">Table 3 - Multivariate Analysis of Proportional Hazards</p>
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
-
-```{r, echo=FALSE}
-survdiff(assignment3_surv ~ RANDOM, data = assignment3_data) %>%
-log_rank_kable()
-```
-
-<p class = "caption">Table 3 - Chi-Squared Statistics for Log-Rank Test by Week of Randomization</p>
-
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
-
-Curabitur et rhoncus felis, id facilisis tellus. Fusce fermentum nisl eu sem convallis, at cursus est tristique. Maecenas non ante mi. Sed aliquam tincidunt pharetra. Nunc in ipsum dolor. Pellentesque scelerisque libero nec libero vehicula aliquet. Nullam sed neque vel turpis egestas auctor. Sed congue libero id nunc placerat, et molestie libero malesuada. Cras mollis dui a scelerisque accumsan.
+As relates to multivariate analysis, reproduced findings were as follows. Baseline CD4 count less than 50 cells / µL was found to have a hazard ratio of 1.69 (95% CI 1.02 – 2.79; P = 0.04) as compared to baseline CD4 count of 51-199 cells / µL. Serum albumin less than 3 g / dL was found to have a hazard ratio of 1.75 (95% CI 1.05 – 2.93; P = 0.03) as compared to serum albumin greater or equal to 3 g / dL. Concerning week of randomization, with week eight as the reference category, week four was found to have a hazard ratio of 1.20 (95% CI 0.63 – 2.29; P = 0.59) and week one was found to have a hazard ratio of 1.67 (95% CI 0.90 – 3.08; P = 0.10). Finally, BMI, computed as a continuous variable, was found to have a hazard ratio of 0.92 (95% CI 0.84 – 1.01; P = 0.08).
 
 ## Discussion
 
-Phasellus eu mollis odio. Etiam tincidunt eu est nec semper. Nulla bibendum enim purus, sit amet luctus lacus rhoncus non. Vivamus quis dignissim risus. Maecenas rhoncus imperdiet nulla sed congue. Duis id lacus felis. Aenean maximus accumsan urna. Etiam aliquam tortor justo, ut tempus orci sollicitudin ut. Fusce tristique enim ex, ac efficitur ipsum tincidunt vitae. Phasellus a imperdiet nisi, sit amet mattis dui. Nulla elementum pretium mi, at laoreet lectus semper nec. Proin vehicula a arcu in efficitur. Curabitur et fringilla ipsum.
+Through this reproduction it was found that results of the orginal publication were only ostensibly reproducible, suffering from a number of methodlogical shortcomings and syntatical issues. The Amogne et al. article would have done well to have included further information concerning the calculation of hepatotoxicity outcomes and how these related to the interuption of TB therapy. In the absence of such infomation, the hepatotoxicity outcomes had to be ignored and the mortality outcomes calculated in the relation to the other variables alone. A further barier to the reproduction of the original findings was the formating of the supplementary file, in which column names were written without concern for naming conventions or consistency. This represents an issue that is prevasive in research and indicates a need for further training of researchers in data science.
 
-Proin in pharetra erat. Proin ullamcorper ligula sapien. Aenean dapibus justo ante, quis scelerisque est tincidunt ac. Nam eget felis nec metus tincidunt convallis. Donec lacinia tellus at dictum interdum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse potenti. Mauris nec leo feugiat, blandit metus eget, gravida turpis. Phasellus consectetur lorem ut justo pellentesque volutpat. Donec a risus eu neque consequat scelerisque. In maximus urna ante, sed pharetra felis tincidunt et.
+Regardless of issues impacting reproducibility, reproduction indicated similar findings concerning week of randomization, with later initiation of cART associated with higher survival. Thus, given a high burden of mortality within the first two months of TB treatment among HIV patients, these and the findings of Amogne et al. indicate that treatment of TB in HIV patients by rifampicin, isoniazid, ethambutol, or pyrazinamide is more safe and effective when cART is initiated after the first week of TB treatment. Even though the findings were not particularly strong, further study in the area should consider the burden of excess mortality that can be avoided by initiating cART after the first week of TB treatment.
 
 ## References
