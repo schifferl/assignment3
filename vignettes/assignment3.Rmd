@@ -20,28 +20,24 @@ library(readxl)
 library(magrittr)
 library(dplyr)
 library(knitr)
-library(ggplot2)
 library(survival)
 library(survminer)
 ```
 
 ## Introduction
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam dignissim ipsum neque, in euismod nunc dignissim quis. Cras suscipit, leo eget auctor tincidunt, ipsum nulla rhoncus nunc, vitae ultrices lacus mi a libero. Morbi mollis nisi dolor, at fermentum nunc imperdiet nec. Vestibulum ultrices finibus magna, at condimentum dui vehicula vel. Curabitur mattis fermentum interdum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ut tellus mauris. Curabitur porta lacinia ante. Pellentesque vestibulum sapien ut diam fringilla, sit amet molestie lorem scelerisque. Phasellus a feugiat magna. Morbi accumsan risus non commodo tristique. Cras luctus varius sem nec pulvinar. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur vitae ipsum efficitur, lacinia orci vitae, mattis justo.^[Amogne, W. et al. Efficacy and Safety of Antiretroviral Therapy Initiated One Week after Tuberculosis Therapy in Patients with CD4 Counts < 200 Cells/μL: TB-HAART Study, a Randomized Clinical Trial. PLoS ONE 10, e0122587 (2015)]
-
+More effective treatment regimens for human immunodeficiency virus (HIV) in recent years have led to greater number of virally suppressed cases in the United States. However, it remains that tuberculous (TB) is the leading cause of death among those living with HIV. Both HIV and TB are easily treated independently but, treatment in conjunction by rifampicin, isoniazid, ethambutol, or pyrazinamide with combination antiretroviral therapy (cART) has potential to cause hepatotoxicity. Thus, given a high burden of mortality within the first two months of TB treatment among HIV patients, a randomized clinical trial was undertaken by Amogne et al. to assess the optimal time to initiate cART after TB treatment. Presented here is an attempt to reconstruct findings from the original publication, particularly Figure 2 and Table 2, to verify Kaplan-Meier survival and hazard ratio estimates.^[Amogne, W. et al. Efficacy and Safety of Antiretroviral Therapy Initiated One Week after Tuberculosis Therapy in Patients with CD4 Counts < 200 Cells/μL: TB-HAART Study, a Randomized Clinical Trial. PLoS ONE 10, e0122587 (2015)]
 
 ## Methods
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+To reproduce both Figure 2 and Table 2, data from the supplement of the original publication was downloaded in the form of an Excel file. The file was read into R version 3.3.2 using the readxl package and column names were formated by regular expression syntax and assigned using the magrittr package.^[R Core Team (2016). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.]<sup>,</sup> ^[Hadley Wickham (2016). readxl: Read Excel Files. R package version 0.1.1. https://CRAN.R-project.org/package=readxl]<sup>,</sup> ^[Stefan Milton Bache and Hadley Wickham (2014). magrittr: A Forward-Pipe Operator for R. R package version 1.5. https://CRAN.R-project.org/package=magrittr] Variables were coerced to appropriate types using the dplyr package.^[Hadley Wickham and Romain Francois (2016). dplyr: A Grammar of Data Manipulation. R package version 0.5.0. https://CRAN.R-project.org/package=dplyr] All sytax used for data manipulation is available on GitHub via the following link, https://github.com/schifferl/assignment3.
 
-```{r}
+```{r, echo=FALSE}
 read_excel("../inst/extdata/journal.pone.0122587.s002.XLSX") ->
   assignment3_data
 ```
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
-
-```{r}
+```{r, echo=FALSE}
 colnames(assignment3_data) %<>%
   toupper() %>%
   gsub("+\ ", "_", .) %>%
@@ -52,9 +48,7 @@ colnames(assignment3_data) %<>%
   gsub("\\(MM\\)", "_MM", .)
 ```
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
-
-```{r}
+```{r, echo=FALSE}
 assignment3_data %<>%
   select(RANDOM, EXP_48, EXP_WK_48, BMI, ALBUMIN, CD4_0) %>%
   mutate(RANDOM = gsub("1", " week one", RANDOM)) %>%
@@ -73,28 +67,26 @@ assignment3_data %<>%
   mutate(CD4_0 = relevel(CD4_0, " 51–199 cells/μL"))
 ```
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+Survival as a function of time was estimated by the Kaplan-Meier product limit estimator as shown in Equation 1, whereby the probability of survival was given by the difference of the random variable $T$ and $t$, the observed survival at a given time. A right-continious distribution of survival is given by the integral from $t$ to infinity where $f(x)\ dx$ represents the change in survival at a given time $t$. The method was implemented in R using the survival package. ^[Therneau T (2015). A Package for Survival Analysis in S. version 2.38, https://CRAN.R-project.org/package=survival.]<sup>,</sup> ^[Terry M. Therneau and Patricia M. Grambsch (2000). Modeling Survival Data: Extending the Cox Model. Springer, New York. ISBN 0-387-98784-3.]
 
 $$S(t) = \Pr\{ T \ge t \} = 1 - F(t) =  \int_t^\infty f(x)\ dx$$
 
 <p class = "caption">Equation 1 - Survival as a Function of Time</p>
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
-
-```{r}
+```{r, echo=FALSE}
 assignment3_data %$%
   Surv(EXP_WK_48, EXP_48) ->
   assignment3_surv
 ```
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+Similarly, proportional hazards were estimated by the Cox proportional hazards model assuming only a semi-parametric distribution of baseline hazard within the population. That is, as the limit of survival went to zero, the hazard at time $t$ was given by the probabillity that it was less or greater than $T$ which represented the population distribution of hazard. Again, the method was implimented in R using the survival package and can be seen in Equation 2. ^[Therneau T (2015). A Package for Survival Analysis in S. version 2.38, https://CRAN.R-project.org/package=survival.]<sup>,</sup> ^[Terry M. Therneau and Patricia M. Grambsch (2000). Modeling Survival Data: Extending the Cox Model. Springer, New York. ISBN 0-387-98784-3.]
 
-$$h(t) = \lim_{s\rightarrow0} \frac{\Pr\{t \le T < t + s | T \ge t \} }{s}$$
+$$h(t) = \lim_{s\rightarrow0} \frac{\Pr\{t \le T < t + s\ |\ T \ge t \} }{s}$$
 <p class = "caption">Equation 2 - Proportional Hazard as a Function of Time</p>
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+Finally, the survminer package was used to plot Kaplan-Meier curves and three custom functions using the knitr package were written to abstract the results of fitted objects and statistical tests into tables.^[Alboukadel Kassambara and Marcin Kosinski (2016). survminer: Drawing Survival Curves using 'ggplot2'. R package version 0.2.4. https://CRAN.R-project.org/package=survminer]<sup>,</sup> ^[Yihui Xie (2016). knitr: A General-Purpose Package for Dynamic Report Generation in R. R package version 1.15.1.]<sup>,</sup> ^[Yihui Xie (2015) Dynamic Documents with R and knitr. 2nd edition. Chapman and Hall/CRC. ISBN 978-1498716963]<sup>,</sup> ^[Yihui Xie (2014) knitr: A Comprehensive Tool for Reproducible Research in R. In Victoria Stodden, Friedrich Leisch and Roger D. Peng, editors, Implementing Reproducible Computational Research. Chapman and Hall/CRC. ISBN 978-1466561595]
 
-```{r}
+```{r, echo=FALSE}
 model_extract <- function(coxph_model) {
   summary <- summary(coxph_model)
   estimate <- summary$conf.int[, -2, drop = FALSE]
@@ -103,19 +95,27 @@ model_extract <- function(coxph_model) {
 }
 ```
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
-
-```{r}
+```{r, echo=FALSE}
 model_kable <- function(model_list) {
   lapply(model_list, model_extract) %>%
     Reduce(rbind, .) %>%
-    kable(digits = 3, col.names = c("Estimate", "95% CI Lower Limit", 
+    kable(digits = 3, col.names = c("Hazard Ratio", "95% CI Lower Limit", 
                                     "95% CI Upper Limit", "P-Value"), 
           align = "lllr", format.args = list(nsmall = 3, scientific = FALSE))
 }
 ```
 
-Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+```{r, echo=FALSE}
+log_rank_kable <- function(survdiff_obj) {
+  chisq <- survdiff_obj$chisq
+  df <- length(survdiff_obj$n) - 1
+  pval <- 1 - pchisq(survdiff_obj$chisq, length(survdiff_obj$n) - 1)
+  cbind(chisq, df, pval) %>%
+  kable(digits = 3, col.names = c("Chi-Squared", "Degrees of Freedom", "P-Value"), 
+        align = "llr", format.args = list(nsmall = 3, scientific = FALSE))
+}
+```
+
 
 ## Results
 
@@ -124,7 +124,10 @@ Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viv
 ```{r, echo=FALSE}
 assignment3_data %$%
   survfit(assignment3_surv ~ RANDOM) %>%
-  ggsurvplot(linetype = "strata", xlab = "Weeks After TB Therapy", ylab = "Probability of Survival", legend = "bottom")
+  ggsurvplot(linetype = "strata", xlab = "Weeks After TB Therapy", 
+             ylab = "Probability of Survival", legend = c(0.8, 0.2), 
+             risk.table = TRUE, risk.table.title = "Number at Risk (Death)", 
+             risk.table.height = 0.3)
 ```
 
 <p class = "caption">Figure 1 - Survival by Week of Randomization</p>
@@ -153,6 +156,13 @@ model_kable()
 <p class = "caption">Table 2 - Multivariate Analysis of Proportional Hazards</p>
 
 Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
+
+```{r, echo=FALSE}
+survdiff(assignment3_surv ~ RANDOM, data = assignment3_data) %>%
+log_rank_kable()
+```
+
+<p class = "caption">Table 3 - Chi-Squared Statistics for Log-Rank Test by Week of Randomization</p>
 
 Sed metus auctor, interdum justo ut, tempus mi. Etiam feugiat lectus id arcu viverra lacinia. Suspendisse potenti. Cras eu nunc non mi posuere mollis at vel ante. Nullam consequat ligula quis diam efficitur, eget aliquet tellus porttitor. Morbi varius quam eget urna viverra maximus. Quisque ac rutrum nunc, ut euismod risus.
 
