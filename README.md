@@ -1,3 +1,3 @@
 # assignment3
 
-The goal of assignment3 is to ...
+This repository is very old and has been archived.
